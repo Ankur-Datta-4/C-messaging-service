@@ -12,3 +12,13 @@ First: Login system created, accepts both new and existing users. App exits when
  
  This is part A.
  4 parts, yet to come.
+
+
+PART B:
+
+Able to send messages to other people.
+MEssage retrival function yet to be made.
+Login System is independent.
+
+**NOTE**:: Both the files have seperate int mains, cos, it helps in easy development and testing.
+**NOTE**:The following is the schema for the two tables used inside testdb:
