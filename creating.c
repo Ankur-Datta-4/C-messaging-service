@@ -26,9 +26,8 @@ int createUser(MYSQL *conn, char* name, char* pass){
 
 printf("\t\t--WELCOME NEW USER--\n");
 
-//INSERT INTO cars VALUES(4,'Volvo',29000)
 char querystring[500];
-//to be confirmed, last calculated
+
 sprintf(querystring,"INSERT INTO users(name,password) VALUES(\'%s\',\'%s\') ",name,pass);
 
 printf("\n%s\n",querystring);
@@ -41,6 +40,7 @@ printf("\n%s\n",querystring);
  }
 
 }
+
 
 int loginUser(MYSQL *conn, char* name, char* pass){
     
@@ -83,20 +83,23 @@ if(!(mysql_real_connect(conn, host, user, pass,dbname, port,unix_socket, flag)))
     }
 
 printf("Connected\n\n");
+
+
+
 char ansChar;
 printf("Are you a new user?(Y/N)");
 fflush(stdin);
 scanf("%c",&ansChar);
 
-char name[50], pass[50];
+char name[50], passw[50];
 printf("\nEnter user name: ");
 scanf("%s",name);
 
 printf("\nEnter password: ");
-scanf("%s",pass);
+scanf("%s",passw);
 
 if(tolower(ansChar)=='y'){
-    if(createUser(conn,name,user)){
+    if(createUser(conn,name,passw)){
     printf("\nUser created!");
 }else{
     printf("\nAn error occurred");
@@ -104,7 +107,7 @@ if(tolower(ansChar)=='y'){
 }
 
 else if(tolower(ansChar)=='n'){
-if(loginUser(conn,name,user)){
+if(loginUser(conn,name,passw)){
     printf("\nUser created!");
 }else{
     printf("\nAn error occurred");
