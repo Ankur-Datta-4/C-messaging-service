@@ -4,9 +4,9 @@ A DM service using C programming with mySQL as middleware.
 ### Working:
 * A user logs as a new/existing user. user-Info is compared against the one in DB to authenticate.
 * The user is presented with these options on successfull login,(else:error is reported):
-    -Sending message.
-    -Reading received messages.
-    -Sign out
+    - Sending message.
+    - Reading received messages.
+    - Sign out
 * sendMessage/viewMessages function, communicate with the mySQL server to send/retrieve messages.
 * The afore options mentioned options are presented to the user, until they decide to logOut.
 * No Encryption/Decryption as it is centralised.
