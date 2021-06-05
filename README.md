@@ -1,28 +1,19 @@
 # C-messaging-service
-A DM service using C programming
+A DM service using C programming with mySQL as middleware.
 
-First: Login system created, accepts both new and existing users. App exits when the credentials do no match, for existing users.
+### Working:
+* A user logs as a new/existing user. user-Info is compared against the one in DB to authenticate.
+* The user is presented with these options on successfull login,(else:error is reported):
+    -Sending message.
+    -Reading received messages.
+    -Sign out
+* sendMessage/viewMessages function, communicate with the mySQL server to send/retrieve messages.
+* The afore options mentioned options are presented to the user, until they decide to logOut.
+* No Encryption/Decryption as it is centralised.
 
---->
-    DataBASE Schema yet to posted.
-    current plan: user table, messages table: id is the foreign key. 
-        --> to figure, how to store a stack of messages
- 
- ----> Messaging isn't validated yet. No plans also.
- 
- This is part A.
- 4 parts, yet to come.
+![SS of exec](https://github.com/Ankur-Datta-4/C-messaging-service/blob/ef71147ec263213371e5189211a43c8e656e61cb/susess.png)
 
-
-PART B:
-
-Able to send messages to other people.
-MEssage retrival function yet to be made.
-Login System is independent.
-
-**NOTE**:: Both the files have seperate int mains, cos, it helps in easy development and testing.
-**NOTE**:The following is the schema for the two tables used inside testdb:(you can paste them on the terminal of mysql)
-
+### Schema for Databases: 
 create table users(
 id INT auto_increment primary key,
 name varchar(20) not null,
@@ -34,3 +25,14 @@ uid INT,
 message varchar(255),
 foreign key(uid) references users(id)
 );
+
+### Index for functions:
+
+* finish_with_error(MYSQL *conn): reports the error-number(SQL) and exits, abruptly.(dev-only)
+* setState(char *name,int isActive):updates the currentUser structure.
+* createUser(MYSQL *conn, char *name, char *password):adds a new record to the users-table.
+* loginUser(MYSQL *conn, char *name, char *password): checks if the user-input name and password matches with that in DB.
+* sendMessage(MYSQL *conn): inserts a message record to the messages table with the user-input-content.
+* viewMessages(MYSQL *conn): reads messages from the message-table, of the current-user.
+* printOptions(): prints the options: send, view, and sign-out for receiving user input. 
+* onLogin(): contains the calls to sendMessage() and viewMessage.
