@@ -11,6 +11,10 @@ A DM service using C programming with mySQL as middleware.
 * The afore options mentioned options are presented to the user, until they decide to logOut.
 * No Encryption/Decryption as it is centralised.
 
+#### Building the .c file:
+* gcc -o <o/pfileName> $(mysql_config --cflags) kindaWorking.c $(mysql_config --libs)
+
+### O/P:
 ![SS of exec](https://github.com/Ankur-Datta-4/C-messaging-service/blob/ef71147ec263213371e5189211a43c8e656e61cb/susess.png)
 
 ### Schema for Databases: 
@@ -25,6 +29,7 @@ uid INT,
 message varchar(255),
 foreign key(uid) references users(id)
 );
+
 
 ### Index for functions:
 
