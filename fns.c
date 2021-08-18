@@ -4,86 +4,114 @@
 #include "headerh.h"
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 int setState(char* userName, int isActive){
     if(isActive==1){
-        currentUser.name=userName;
+        strcpy(currentUser.name,userName);
         currentUser.isLoggedIn=1;
     }else{
-        currentUser.name=NULL;
+        *(currentUser.name)=NULL;
         currentUser.isLoggedIn=0;
     }
 }
-int createUser(FILE *conn, char* name, char* pass){
 
+int checkChar(char c){
+    int status=0;
+    char temp=tolower(c);
+    if(temp=='y' || temp=='n')
+        status=1;
+    return status;
+}
 
-printf("\t\t--WELCOME NEW USER--\n");
+int createUser(char* name, char* pass){
+
+FILE *conn=fopen("users.txt","a+");
+/*
+if(loginUser(conn,name,pass)!=0){
+printf("user Already exists..");
+return 1;
+}else{*/
 
 int res=fprintf(conn,"\n%s %s",name,pass);
 
+fclose(conn);
  if(res<0){
-     return(0);
+     
+     return 0;
  }
  else{
+
      return 1;
  }
+//}
+
+
 
 }
 
-
-int loginUser(FILE *conn, char* name, char* pass){
-    
-    
+//removing file
+int loginUser(FILE *conn,char* name, char* pass){
+  
+    printf("\n%p",conn);
     rewind(conn);
-    struct userInfo iter;
+    printf("\nrewind done..");
     char nameBuff[100],passBuff[100];
-    while(fscanf(conn,"%s %s",iter.name,iter.pass) != EOF){
-        if(strcmp(iter.name,name)==0){
-            if(strcmp(iter.pass,pass)!=0){
-                fprintf(stderr,"Invalid user credentials");
+   
+    while(fscanf(conn,"%s %s\n",nameBuff,passBuff) != EOF){
+        
+        if(strcmp(nameBuff,name)==0){
+            if(strcmp(passBuff,pass)!=0){
+                fprintf(stderr,"\nInvalid user credentials");
                 return 0;
             }
+           
             return 1;
         }
     }
-    fprintf(stderr,"User doesn't exist!");
+    fprintf(stderr,"\nUser doesn't exist!");
     return 0;
   
   }
 
 
 int sendMessage(){
-
-    char recipientName[50];
-    fflush(stdin);
+    FILE *conn=fopen("msgs.txt","a+");
+    time_t t;
+    time(&t);
+     struct userInfo iter;
     printf("\nWhom do you want to send the message to..? ");
-    scanf("%[a-z]s",recipientName);
-    fflush(stdin);
-    sprintf(recipientName,".txt");
-    FILE *conn = fopen(recipientName,"a+");
-    char messageString[100];
+    scanf("%[a-z]s",iter.msg.recipientName);
+   fflush(stdin);
     printf("\nMessage: ");
-    scanf("%[^\n]s",messageString);
+    scanf("%[^\n]s",iter.msg.messageText);
+    fseek(conn,0,SEEK_END);
+    strcpy(iter.msg.sendTime,ctime(&t));
+    strcpy(iter.msg.senderName,currentUser.name);
 
-    char messageStringWithName[120];
-    sprintf(messageStringWithName,"%s: %s\n",currentUser.name,messageString);
-
-//fseek(conn,0,SEEK_END);
-int res=fprintf(conn,"%s",messageStringWithName);
-if (res<=0){
+    int res=fwrite(&(iter.msg),sizeof(struct messageInfo),1,conn);
+    fclose(conn);
+if (res<1){
       return 0;
   }
 else{
     return 1;
 }
-fclose(conn);
 }
 
-int viewMessages(FILE *conn){
-    char recString[600];
-    while(fgets(recString,100,conn) != NULL){
-        fputs(recString,conn);
+int viewMessages(){
+    int res=0;
+    struct userInfo iter;
+    FILE* conn= fopen("msgs.txt","r+");
+    rewind(conn);
+    printf("currentUser: %s",currentUser.name);
+    while((res=fread(&(iter.msg),sizeof(struct messageInfo),1,conn))){
+        //  printf("\nCC%s: %s \n\t\t%s",currentUser.msg.senderName,currentUser.msg.messageText,currentUser.msg.sendTime);
+        if(strcmp(iter.msg.recipientName,currentUser.name)==0){
+            printf("\n%s: %s \n\t\t%s",iter.msg.senderName,iter.msg.messageText,iter.msg.sendTime);
+        }
     }
+    
     return 1;
 
 }
@@ -94,11 +122,11 @@ void printOptions(){
 }
 
 int onLogin(){
+//connect to a bin file to read and write
+//FILE *conn=fopen("msgs.txt","w+");
 char c=0;
 fflush(stdin);
-char uFile[70];
-sprintf(uFile,"%s.txt",currentUser.name);
-FILE* conn=fopen(uFile,"w+");
+
 while(currentUser.isLoggedIn){
     printOptions();
     while(!(c=getchar()));
@@ -109,7 +137,7 @@ while(currentUser.isLoggedIn){
            fflush(stdin);
     }
     }else if(tolower(c)=='v'){
-        if(!viewMessages(conn)){
+        if(!viewMessages()){
             printf("\n Error in viewing message! \n"); 
         }
 
@@ -121,7 +149,7 @@ while(currentUser.isLoggedIn){
 }
 c=0;
 }
-fclose(conn);
+//fclose(conn);
 printf("Logged out!\n");
 exit(1);
 
