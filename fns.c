@@ -81,14 +81,18 @@ int sendMessage(){
     time(&t);
      struct userInfo iter;
     printf("\nWhom do you want to send the message to..? ");
-    scanf("%[a-z]s",iter.msg.recipientName);
+    scanf("%s",iter.msg.recipientName);
    fflush(stdin);
+   
     printf("\nMessage: ");
     scanf("%[^\n]s",iter.msg.messageText);
     fseek(conn,0,SEEK_END);
     strcpy(iter.msg.sendTime,ctime(&t));
+    printf("\n%s", iter.msg.sendTime);
     strcpy(iter.msg.senderName,currentUser.name);
-
+    if(strcmp(iter.msg.recipientName,iter.msg.senderName)){
+        strcpy(iter.msg.senderName,"You");
+   }
     int res=fwrite(&(iter.msg),sizeof(struct messageInfo),1,conn);
     fclose(conn);
 if (res<1){
@@ -104,11 +108,15 @@ int viewMessages(){
     struct userInfo iter;
     FILE* conn= fopen("msgs.txt","r+");
     rewind(conn);
-    printf("currentUser: %s",currentUser.name);
+   
     while((res=fread(&(iter.msg),sizeof(struct messageInfo),1,conn))){
+       
         //  printf("\nCC%s: %s \n\t\t%s",currentUser.msg.senderName,currentUser.msg.messageText,currentUser.msg.sendTime);
         if(strcmp(iter.msg.recipientName,currentUser.name)==0){
-            printf("\n%s: %s \n\t\t%s",iter.msg.senderName,iter.msg.messageText,iter.msg.sendTime);
+            char time[26];
+            strncpy(time,iter.msg.sendTime,19);
+            printf("\n%s: %s",iter.msg.senderName,iter.msg.messageText);
+            printf("\n\t\t\t%s",time);
         }
     }
     
