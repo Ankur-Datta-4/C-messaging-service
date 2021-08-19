@@ -5,12 +5,13 @@
 #include "headerh.h"
 #include <ctype.h>
 #include <errno.h>
+#include <conio.h>
 
 
 
 int setState(char* userName, int isActive);
 int createUser( char* name, char* pass);
-int loginUser(FILE *conn, char* name, char* pass);
+int loginUser(char* name, char* pass);
 void printOptions();
 int onLogin();
 int checkChar(char);
@@ -25,6 +26,8 @@ int main(){
 if(usersFl !=NULL){
 
 printf("Connected\n\n");
+fclose(usersFl);
+
 
 char ansChar;
 printf("Are you a new user?(Y/N)");
@@ -37,17 +40,18 @@ if(checkChar(ansChar)==0){
     
 }
 
-char name[50], passw[50];
+char name[50], passw[50],c=0;
+int i,flag=1;
 printf("\nEnter user name: ");
 scanf("%s",name);
 
 printf("\nEnter password: ");
 scanf("%s",passw);
 
-//dev
-printf("%p",usersFl);
+
 if(tolower(ansChar)=='y'){
       if(createUser(name,passw)){
+        printf("\n\n\t\tWelcome New User");
          setState(name,1);
          onLogin();
     }else{
@@ -55,8 +59,8 @@ if(tolower(ansChar)=='y'){
 }
 }
 
-else if(tolower(ansChar)=='n'){
-        if(loginUser(usersFl,name,passw)){
+else{
+        if(loginUser(name,passw)){
             setState(name,1);
             printf("\nUser logged in!\n");
             onLogin();
@@ -64,14 +68,11 @@ else if(tolower(ansChar)=='n'){
             printf("\nInvalid Credentials!\n");
         }
 }
-else{
-    fprintf(stderr,"Invalid INput\n");
-    exit(1);
-}
+
 
 }
 else{
-printf("%d",errno);
+printf("%s",strerror(errno));
 exit(1);
 }
 

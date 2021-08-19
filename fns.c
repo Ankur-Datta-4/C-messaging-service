@@ -27,11 +27,7 @@ int checkChar(char c){
 int createUser(char* name, char* pass){
 
 FILE *conn=fopen("users.txt","a+");
-/*
-if(loginUser(conn,name,pass)!=0){
-printf("user Already exists..");
-return 1;
-}else{*/
+
 
 int res=fprintf(conn,"\n%s %s",name,pass);
 
@@ -44,18 +40,18 @@ fclose(conn);
 
      return 1;
  }
-//}
+
 
 
 
 }
 
-//removing file
-int loginUser(FILE *conn,char* name, char* pass){
+
+int loginUser(char* name, char* pass){
   
-    printf("\n%p",conn);
-    rewind(conn);
-    printf("\nrewind done..");
+    FILE* conn=fopen("users.txt","r");
+    
+   
     char nameBuff[100],passBuff[100];
    
     while(fscanf(conn,"%s %s\n",nameBuff,passBuff) != EOF){
@@ -69,6 +65,7 @@ int loginUser(FILE *conn,char* name, char* pass){
             return 1;
         }
     }
+    fclose(conn);
     fprintf(stderr,"\nUser doesn't exist!");
     return 0;
   
@@ -83,16 +80,22 @@ int sendMessage(){
     printf("\nWhom do you want to send the message to..? ");
     scanf("%s",iter.msg.recipientName);
    fflush(stdin);
-   
+    char c=0;
     printf("\nMessage: ");
     scanf("%[^\n]s",iter.msg.messageText);
+    printf("\nDo you want to attach anything..?");
+    fflush(stdin);
+    scanf("%c",&c);
+    if(checkChar(c)==1 && tolower(c)=='y'){
+        fflush(stdin);
+        printf("\nEnter the link: ");
+        scanf("%[^\n]s",iter.msg.links);
+        printf("\n%s",iter.msg.links);
+    }
     fseek(conn,0,SEEK_END);
     strcpy(iter.msg.sendTime,ctime(&t));
-    printf("\n%s", iter.msg.sendTime);
     strcpy(iter.msg.senderName,currentUser.name);
-    if(strcmp(iter.msg.recipientName,iter.msg.senderName)){
-        strcpy(iter.msg.senderName,"You");
-   }
+    
     int res=fwrite(&(iter.msg),sizeof(struct messageInfo),1,conn);
     fclose(conn);
 if (res<1){
@@ -113,10 +116,10 @@ int viewMessages(){
        
         //  printf("\nCC%s: %s \n\t\t%s",currentUser.msg.senderName,currentUser.msg.messageText,currentUser.msg.sendTime);
         if(strcmp(iter.msg.recipientName,currentUser.name)==0){
-            char time[26];
+            char time[20];
             strncpy(time,iter.msg.sendTime,19);
-            printf("\n%s: %s",iter.msg.senderName,iter.msg.messageText);
-            printf("\n\t\t\t%s",time);
+            printf("\n%s: %s\nLinks: %s\n\t\t\t%s",iter.msg.senderName,iter.msg.messageText,iter.msg.links,time);
+            
         }
     }
     
@@ -130,8 +133,7 @@ void printOptions(){
 }
 
 int onLogin(){
-//connect to a bin file to read and write
-//FILE *conn=fopen("msgs.txt","w+");
+
 char c=0;
 fflush(stdin);
 
@@ -143,13 +145,16 @@ while(currentUser.isLoggedIn){
         if(sendMessage()){
            printf("\nMessage Sent!");
            fflush(stdin);
+    }else{
+        printf("\nError sending message..");
     }
     }else if(tolower(c)=='v'){
         if(!viewMessages()){
             printf("\n Error in viewing message! \n"); 
         }
 
-    }else if(tolower(c)=='q'){
+    }
+    else if(tolower(c)=='q'){
         currentUser.isLoggedIn=0;
     }
     else{
@@ -157,7 +162,7 @@ while(currentUser.isLoggedIn){
 }
 c=0;
 }
-//fclose(conn);
+
 printf("Logged out!\n");
 exit(1);
 
